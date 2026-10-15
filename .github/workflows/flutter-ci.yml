@@ -45,7 +45,7 @@ jobs:
     
     strategy:
       matrix:
-        target: [android, ios, web]
+        target: [android, ios]
     
     steps:
       - name: Checkout code
@@ -70,9 +70,4 @@ jobs:
       - name: Build iOS (no codesign)
         if: matrix.target == 'ios'
         run: flutter build ios --release --no-codesign
-        working-directory: ./full_stack_flutter_note_app
-      
-      - name: Build Web
-        if: matrix.target == 'web'
-        run: flutter build web --release
         working-directory: ./full_stack_flutter_note_app
