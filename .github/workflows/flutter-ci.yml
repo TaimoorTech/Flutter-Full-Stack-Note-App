@@ -67,6 +67,14 @@ jobs:
         run: flutter build apk --release
         working-directory: ./full_stack_flutter_note_app
       
+      - name: Upload Android APK
+        if: matrix.target == 'android'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: ./full_stack_flutter_note_app/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 14
+      
       - name: Build iOS (no codesign)
         if: matrix.target == 'ios'
         run: flutter build ios --release --no-codesign
