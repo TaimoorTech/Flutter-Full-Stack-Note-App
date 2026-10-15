@@ -1,0 +1,78 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  analyze-and-test:
+    name: Analyze and Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.1'
+          channel: 'stable'
+          cache: true
+      
+      - name: Get dependencies
+        run: flutter pub get
+        working-directory: ./full_stack_flutter_note_app
+      
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+        working-directory: ./full_stack_flutter_note_app
+      
+      - name: Analyze project
+        run: flutter analyze
+        working-directory: ./full_stack_flutter_note_app
+      
+      - name: Run tests
+        run: flutter test
+        working-directory: ./full_stack_flutter_note_app
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: analyze-and-test
+    
+    strategy:
+      matrix:
+        target: [android, ios, web]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.1'
+          channel: 'stable'
+          cache: true
+      
+      - name: Get dependencies
+        run: flutter pub get
+        working-directory: ./full_stack_flutter_note_app
+      
+      - name: Build Android APK
+        if: matrix.target == 'android'
+        run: flutter build apk --release
+        working-directory: ./full_stack_flutter_note_app
+      
+      - name: Build iOS (no codesign)
+        if: matrix.target == 'ios'
+        run: flutter build ios --release --no-codesign
+        working-directory: ./full_stack_flutter_note_app
+      
+      - name: Build Web
+        if: matrix.target == 'web'
+        run: flutter build web --release
+        working-directory: ./full_stack_flutter_note_app
